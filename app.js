@@ -9,7 +9,7 @@ const Promise = require('promise')
 
 /**
  * ---
- * $fn: The function to call on each object, signature (elem, done)
+ * fn: The function to call on each object, signature (elem, done)
  * $callback: The function to call when everything is done
  * ---
  * A smart for loop that waits for everything to finish in the event of callback functions
@@ -31,7 +31,7 @@ Array.prototype.forSmart = function (fn, callback) {
 
 /**
  * ---
- * $comment: The extracted comment
+ * comment: The extracted comment
  * $returns: null if not a docstring, else the doc object
  * ---
  * Parses a comment and returns the doc object
@@ -70,7 +70,7 @@ function processComment (comment) {
 
 /**
  * ---
- * $fileName: The file name of the file
+ * fileName: The file name of the file
  * $callback: The callback function with signature (err, data)
  * ---
  * This function retrieves all function signatures in a single file.
@@ -100,7 +100,7 @@ function findFileComments(fileName, callback) {
 
 /**
  * ---
- * $dir: The directory to read from
+ * dir: The directory to read from
  * $callback: The callback to call when finished, uses signature (err, data)
  * ---
  * Fetches all the comment data from a file
@@ -116,9 +116,8 @@ function readDir (dir, callback) {
 
       files.forSmart((file, done) => {
           if (!file.match(/^.*\.js/g)) {
-            return done()
+            return done() // only process .js files
           }
-          console.log(`Starting work on file ${file}`)
         
           let filePath = path.join(dirPath, file)
           findFileComments(filePath, (err, data) => {
@@ -133,10 +132,131 @@ function readDir (dir, callback) {
           })
       },
       () =>{
-        console.log('finished all directory work')
         callback(false, dirData)
       })
 
+    }
+  })
+}
+
+/**
+ * ---
+ * fileData: The docstring data of a file
+ * ---
+ */
+function createMDFile (fileName, fileData) {
+  let markdown =`# ${fileName}`
+
+  fileData.forEach((functionData) => {
+    markdown += '\n'
+    markdown += createFunctionMD(functionData)
+    markdown += '\n---\n'
+  })
+
+  return markdown
+}
+
+function createFunctionMD (data) {
+  const metaKeys = Object.keys(data.meta)
+  const args = metaKeys.filter(key => key.match(/^[^\$][a-zA-Z]*$/g))
+
+  let heading = `### ${data.codeContext.type} ${data.codeContext.name} () \n`
+
+  let argsTable = `
+  | Arg | description |
+  |-----|-------------|
+  `
+  args.forEach((arg) => {
+    argsTable += `|${arg}|${data.meta[arg]}|`
+  })
+  argsTable += '\n'
+
+  let returnMD = ''
+  if(data.meta['$returns']) {
+    returnMD = `\n##### Returns \n> ${data.meta['$returns']}\n`
+  }
+
+  let callbackMD = ''
+  if(data.meta['$callback']) {
+    returnMD = `\n##### Callback \n> ${data.meta['$callback']}\n`
+  }
+
+  let md = ''
+  md += heading
+  md += argsTable
+  md += returnMD
+  md += callbackMD
+
+  return md
+}
+
+/**
+ * ---
+ * documentation: The documentation information for the entire program
+ * format: html or md, the output format
+ * ---
+ */
+function processAllDocumatation (documentation, format) {
+  // Create root docs folder, if it doesn't exist
+  let docsDir = path.join(__dirname, 'docs')
+  if (!fs.existsSync(docsDir)){
+    fs.mkdirSync(docsDir);
+  }
+
+  // Get all directories, and iterate through.
+  let dirNames = Object.keys(documentation)
+  dirNames.forSmart((dirName, dirDone) => {
+    let dirDocs = documentation[dirName]
+    let fileNames = Object.keys(documentation[dirName])
+
+    // Create a folder in /docs for all directories processed
+    let pathSafeName = dirName.replace('/', '')
+    let dirPath = path.join(docsDir, pathSafeName)
+    if (!fs.existsSync(dirPath)){
+      fs.mkdirSync(dirPath);
+    }
+
+    // For each file
+    fileNames.forSmart((fileName, fileDone) => {
+      let thisPath = path.join(dirPath, fileName + '.md')
+
+      let md = createMDFile (fileName, dirDocs[fileName])
+      writeFile(md, thisPath, (err) => {
+        if (err) {
+          fileDone(err)
+        } else {
+          fileDone()
+        }
+      })
+
+    },
+    (err) => {
+      dirDone(err)
+    })
+
+
+  },
+  (err) => {
+    if (err) {
+      console.error(err)
+    } else {
+      console.log('finished writing')
+    }
+  })
+}
+
+/**
+ * ---
+ * contents: The string to print to a file 
+ * fileName: the file to write to
+ * $callback: callback fn with signature (err)
+ */
+function writeFile (contents, fileName, callback) {
+  fs.writeFile(fileName, contents, (err) => {
+    if (err) {
+      callback(err)
+    } else {
+      callback(false)
     }
   })
 }
@@ -146,6 +266,7 @@ function readDir (dir, callback) {
  */
 function main () {
   const workDir = argv.dir ? argv.dir : '/'
+  const format = argv.format ? argv.format : 'md'
   
   if (typeof workDir === typeof '') { // If only one dir specified
     readDir(workDir, (err, data) => {
@@ -156,16 +277,18 @@ function main () {
   } else { // if multiple are specified
     let programData = {}
 
-    workDir.forSmart((subDir) => {
+    workDir.forSmart((subDir, done) => {
       readDir(subDir, (err, data) => {
         if (err) {
-          console.error(err)
+          done(err)
         } else {
-          
+          programData[subDir] = data
+          done ()
         }
       })
     }, () => {
-      console.log('finished processing all directoreis')
+      console.log(programData)
+      processAllDocumatation(programData, format)
     })
 
   }
