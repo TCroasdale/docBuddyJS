@@ -1,5 +1,5 @@
 # app.js
-### prototype method forSmart () 
+### prototype method forSmart (fn, callback) 
 
   | Arg | description |
   |-----|-------------|
@@ -12,7 +12,7 @@
 
 ---
 
-### function processComment () 
+### function processComment (comment) 
 
   | Arg | description |
   |-----|-------------|
@@ -24,7 +24,7 @@
 
 ---
 
-### function findFileComments () 
+### function findFileComments (fileName, callback) 
 
   | Arg | description |
   |-----|-------------|
@@ -37,7 +37,7 @@
 
 ---
 
-### function readDir () 
+### function readDir (dir, callback) 
 
   | Arg | description |
   |-----|-------------|
@@ -50,7 +50,7 @@
 
 ---
 
-### function createMDFile () 
+### function createMDFile (fileData) 
 
   | Arg | description |
   |-----|-------------|
@@ -59,7 +59,7 @@
 
 ---
 
-### function processAllDocumatation () 
+### function processAllDocumatation (documentation, format) 
 
   | Arg | description |
   |-----|-------------|
@@ -69,7 +69,7 @@
 
 ---
 
-### function writeFile () 
+### function writeFile (contents, fileName, callback) 
 
   | Arg | description |
   |-----|-------------|

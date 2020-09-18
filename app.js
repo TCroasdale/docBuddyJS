@@ -165,7 +165,7 @@ function createFunctionMD (data) {
   args.forEach((arg) => {
     signature += `${arg.replace('$', '')}, `
   })
-  signature = signature.substr(0, signature.lengt - 2)
+  signature = signature.substr(0, signature.length - 2)
 
   let heading = `### ${data.codeContext.type} ${data.codeContext.name} (${signature}) \n`
 

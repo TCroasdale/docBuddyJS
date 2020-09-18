@@ -1,5 +1,5 @@
 # testfile.js
-### method function () 
+### method function (arg1, arg2) 
 
   | Arg | description |
   |-----|-------------|
