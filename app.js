@@ -5,9 +5,27 @@ const markdown = require('markdown').markdown
 const matter = require('gray-matter')
 const { argv } = require('yargs')
 const conf = require('./.docdown.config.js')
+const Promise = require('promise')
 
+/**
+ * ---
+ * $fn: The function to call on each object, signature (elem, done)
+ * $callback: The function to call when everything is done
+ * ---
+ * A smart for loop that waits for everything to finish in the event of callback functions
+ */
 Array.prototype.forSmart = function (fn, callback) {
+  let count = this.length
   
+  this.forEach((elem) => {
+    fn(elem, (err) => {
+      count --
+
+      if (count === 0) {
+        callback(err)
+      }
+    })
+  })
 }
 
 
@@ -32,10 +50,18 @@ function processComment (comment) {
     docObject.md = processed.content
 
     docObject.lineNo = comment.loc.start.line
-    docObject.codeContext = {
-      type: comment.code.context.type,
-      name: comment.code.context.name,
-      params: comment.code.context.params
+    if (comment.code.context) {
+      docObject.codeContext = {
+        type: comment.code.context.type,
+        name: comment.code.context.name,
+        params: comment.code.context.params
+      }
+    } else {
+      docObject.codeContext = {
+        type: 'function',
+        name: comment.code.value.replace(/(function|[\s]*|)[^\w]/g, ''), // gets only fn name
+        params: []
+      }
     }
     return docObject
   }
@@ -46,11 +72,10 @@ function processComment (comment) {
  * ---
  * $fileName: The file name of the file
  * $callback: The callback function with signature (err, data)
- * $format: The format to parse into
  * ---
  * This function retrieves all function signatures in a single file.
  */
-function findFileComments(fileName, callback, format='md') {
+function findFileComments(fileName, callback) {
   fs.readFile(fileName, 'utf-8', (err, data) => {
     if (err) {
       callback(err, undefined)
@@ -64,7 +89,6 @@ function findFileComments(fileName, callback, format='md') {
           if (docObject)
             cmtData.push(docObject)
         })
-
 
         callback(false, cmtData)
       } else {
@@ -90,20 +114,27 @@ function readDir (dir, callback) {
 
       let dirData = {} // The doc data for the directory
 
-      files.forEach((file) => {
-        if (file.match(/^.*\.js/g)) {
+      files.forSmart((file, done) => {
+          if (!file.match(/^.*\.js/g)) {
+            return done()
+          }
+          console.log(`Starting work on file ${file}`)
+        
           let filePath = path.join(dirPath, file)
           findFileComments(filePath, (err, data) => {
             if (err) {
-              callback(err, null)
+              done(err)
             } else {
               if(data.length) {
                 dirData[file] = data
-                console.log(dirData)
               }
+              done()
             }
           })
-        }
+      },
+      () =>{
+        console.log('finished all directory work')
+        callback(false, dirData)
       })
 
     }
@@ -125,8 +156,16 @@ function main () {
   } else { // if multiple are specified
     let programData = {}
 
-    workDir.forEach((subDir) => {
-      readDir(subDir, (err, data))
+    workDir.forSmart((subDir) => {
+      readDir(subDir, (err, data) => {
+        if (err) {
+          console.error(err)
+        } else {
+          
+        }
+      })
+    }, () => {
+      console.log('finished processing all directoreis')
     })
 
   }
