@@ -1,3 +1,4 @@
 exports.module = {
-  exclude: ['/public', '/views']
+  exclude: ['/public', '/views'],
+  exportDir: '/docs'
 }
