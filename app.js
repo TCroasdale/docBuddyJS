@@ -158,22 +158,32 @@ function createMDFile (fileName, fileData) {
 
 function createFunctionMD (data) {
   const metaKeys = Object.keys(data.meta)
-  const args = metaKeys.filter(key => key.match(/^[^\$][a-zA-Z]*$/g))
+  const args = metaKeys.filter(key => !key.match(/^(\$return[s]*)/g))
+  console.log(args)
 
-  let heading = `### ${data.codeContext.type} ${data.codeContext.name} () \n`
+  let signature = ''
+  args.forEach((arg) => {
+    signature += `${arg.replace('$', '')}, `
+  })
+  signature = signature.substr(0, signature.lengt - 2)
+
+  let heading = `### ${data.codeContext.type} ${data.codeContext.name} (${signature}) \n`
 
   let argsTable = `
   | Arg | description |
   |-----|-------------|
   `
   args.forEach((arg) => {
-    argsTable += `|${arg}|${data.meta[arg]}|`
+    argsTable += `|${arg.replace('$', '')}|${data.meta[arg]}|\n `
   })
   argsTable += '\n'
 
   let returnMD = ''
   if(data.meta['$returns']) {
     returnMD = `\n##### Returns \n> ${data.meta['$returns']}\n`
+  }
+  if(data.meta['$return']) {
+    returnMD = `\n##### Returns \n> ${data.meta['$return']}\n`
   }
 
   let callbackMD = ''
@@ -262,6 +272,8 @@ function writeFile (contents, fileName, callback) {
 }
 
 /**
+ * ---
+ * ---
  * The entry point of the program
  */
 function main () {
