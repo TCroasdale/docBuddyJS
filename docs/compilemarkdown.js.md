@@ -1,5 +1,10 @@
 # compilemarkdown.js
 
+- ``` method compileFile (templateName, data, callback, templateFolder) ```
+- ``` method createMDFile (fileName, fileData) ```
+
+
+
 ### ``` method compileFile (templateName, data, callback, templateFolder) ```
 
 | Arg | description |

@@ -1,7 +1,11 @@
 # <$= fileName $>
 
 <$ funcs.forEach((func) => { -$>
-<$ console.log(func) -$>
+- ``` <$= func.codeContext.type $> <$= func.codeContext.name $> (<$= func.codeContext.params.join(', ') $>) ```
+<$ }) $>
+
+
+<$ funcs.forEach((func) => { -$>
 ### ``` <$= func.codeContext.type $> <$= func.codeContext.name $> (<$= func.codeContext.params.join(', ') $>) ```
 
 <$ if (func.meta.length) -$>

@@ -1,5 +1,15 @@
 # app.js
 
+- ``` prototype method forSmart (fn, callback) ```
+- ``` function processComment (comment) ```
+- ``` function findFileComments (fileName, callback) ```
+- ``` function readDir (dir, callback) ```
+- ``` function processAllDocumatation (documentation, format) ```
+- ``` function writeFile (contents, fileName, callback) ```
+- ``` function main () ```
+
+
+
 ### ``` prototype method forSmart (fn, callback) ```
 
 | Arg | description |
