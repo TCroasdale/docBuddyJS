@@ -8,6 +8,8 @@
 <$ funcs.forEach((func) => { -$>
 ### ``` <$= func.codeContext.type $> <$= func.codeContext.name $> (<$= func.codeContext.params.join(', ') $>) ```
 
+<$= func.md $>
+
 <$ if (func.meta.length) -$>
 | Arg | description |
 | --: | :-- |

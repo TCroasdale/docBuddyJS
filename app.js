@@ -12,10 +12,9 @@ const mdCompiler = require('./compilemarkdown')
  * ---
  * fn: The function to call on each object, signature (elem, done)
  * $callback:
- *    description: The function to call when everything is done
- *    signature:
- *      err: The error, or null if no error
- * 
+ *    description: The function called when done is called n times
+ *    args:
+ *      err: The error, or falsey if no error
  * ---
  * A smart for loop that waits for everything to finish in the event of callback functions
  */
@@ -37,7 +36,9 @@ Array.prototype.forSmart = function (fn, callback) {
 /**
  * ---
  * comment: The extracted comment
- * $returns: null if not a docstring, else the doc object
+ * $returns:
+ *   description: null if not a docstring, else the doc object
+ *   type: JSON
  * ---
  * Parses a comment and returns the doc object
  */
@@ -76,7 +77,11 @@ function processComment (comment) {
 /**
  * ---
  * fileName: The file name of the file
- * $callback: The callback function with signature (err, data)
+ * $callback:
+ *    description: The function called when processing is done
+ *    args:
+ *      err: The error if ir occurs, falsey if not.
+ *      data: The comments in the file
  * ---
  * This function retrieves all function signatures in a single file.
  */
@@ -107,9 +112,13 @@ function findFileComments(fileName, callback) {
 /**
  * ---
  * dir: The directory to read from
- * $callback: The callback to call when finished, uses signature (err, data)
+ * $callback:
+ *    description: The callback to call when finished, uses signature (err, data)
+ *    args:
+ *      err: The error if occured, falsey if not
+ *      data: The returned docstrings from that directory.
  * ---
- * Fetches all the comment data from a file
+ * Fetches all the comment data from all the files in a directory.
  */
 function readDir (dir, callback) {
   let dirPath = path.join(__dirname, dir)
@@ -210,7 +219,11 @@ function processAllDocumatation (documentation, format) {
  * ---
  * contents: The string to print to a file 
  * fileName: the file to write to
- * $callback: callback fn with signature (err)
+ * $callback:
+ *    description: Called when the file has been written to disk.
+ *    args:
+ *      err: The error if it occurs, false otherwise.
+ * ---
  */
 function writeFile (contents, fileName, callback) {
   fs.writeFile(fileName, contents, (err) => {

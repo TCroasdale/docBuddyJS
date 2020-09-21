@@ -12,18 +12,27 @@
 
 ### ``` prototype method forSmart (fn, callback) ```
 
+A smart for loop that waits for everything to finish in the event of callback functions
+
 | Arg | description |
 | --: | :-- |
 | fn | The function to call on each object, signature (elem, done) |
-| callback | The function to call when everything is done |
+| callback | The function called when done is called n times |
 
 
 
 
 #### Callback
 
-The function to call when everything is done
+The function called when done is called n times
 
+
+
+
+| Arg | description |
+| --: | :-- |
+| err | The error, or falsey if no error |
+ 
 
 
 
@@ -32,6 +41,8 @@ The function to call when everything is done
 
 ### ``` function processComment (comment) ```
 
+Parses a comment and returns the doc object
+
 | Arg | description |
 | --: | :-- |
 | comment | The extracted comment |
@@ -39,7 +50,7 @@ The function to call when everything is done
 
 
 #### Return
- 
+##### Type: ``` JSON ```
 null if not a docstring, else the doc object
 
 
@@ -47,16 +58,28 @@ null if not a docstring, else the doc object
 
 ### ``` function findFileComments (fileName, callback) ```
 
+This function retrieves all function signatures in a single file.
+
 | Arg | description |
 | --: | :-- |
 | fileName | The file name of the file |
-| callback |  |
+| callback | The function called when processing is done |
 
 
 
 
 #### Callback
 
+The function called when processing is done
+
+
+
+
+| Arg | description |
+| --: | :-- |
+| err | The error if ir occurs, falsey if not. |
+| data | The comments in the file |
+ 
 
 
 
@@ -65,16 +88,28 @@ null if not a docstring, else the doc object
 
 ### ``` function readDir (dir, callback) ```
 
+Fetches all the comment data from all the files in a directory.
+
 | Arg | description |
 | --: | :-- |
 | dir | The directory to read from |
-| callback |  |
+| callback | The callback to call when finished, uses signature (err, data) |
 
 
 
 
 #### Callback
 
+The callback to call when finished, uses signature (err, data)
+
+
+
+
+| Arg | description |
+| --: | :-- |
+| err | The error if occured, falsey if not |
+| data | The returned docstrings from that directory. |
+ 
 
 
 
@@ -82,6 +117,8 @@ null if not a docstring, else the doc object
 ---
 
 ### ``` function processAllDocumatation (documentation, format) ```
+
+
 
 | Arg | description |
 | --: | :-- |
@@ -96,17 +133,28 @@ null if not a docstring, else the doc object
 
 ### ``` function writeFile (contents, fileName, callback) ```
 
+
+
 | Arg | description |
 | --: | :-- |
 | contents | The string to print to a file |
 | fileName | the file to write to |
-| callback |  |
+| callback | Called when the file has been written to disk. |
 
 
 
 
 #### Callback
 
+Called when the file has been written to disk.
+
+
+
+
+| Arg | description |
+| --: | :-- |
+| err | The error if it occurs, false otherwise. |
+ 
 
 
 
@@ -114,6 +162,8 @@ null if not a docstring, else the doc object
 ---
 
 ### ``` function main () ```
+
+The entry point of the program
 
 | Arg | description |
 | --: | :-- |
