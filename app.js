@@ -10,7 +10,11 @@ const Promise = require('promise')
 /**
  * ---
  * fn: The function to call on each object, signature (elem, done)
- * $callback: The function to call when everything is done
+ * $callback:
+ *    description: The function to call when everything is done
+ *    signature:
+ *      err: The error, or null if no error
+ * 
  * ---
  * A smart for loop that waits for everything to finish in the event of callback functions
  */
@@ -159,7 +163,6 @@ function createMDFile (fileName, fileData) {
 function createFunctionMD (data) {
   const metaKeys = Object.keys(data.meta)
   const args = metaKeys.filter(key => !key.match(/^(\$return[s]*)/g))
-  console.log(args)
 
   let signature = ''
   args.forEach((arg) => {
@@ -169,14 +172,18 @@ function createFunctionMD (data) {
 
   let heading = `### ${data.codeContext.type} ${data.codeContext.name} (${signature}) \n`
 
-  let argsTable = `
-  | Arg | description |
-  |-----|-------------|
-  `
-  args.forEach((arg) => {
-    argsTable += `|${arg.replace('$', '')}|${data.meta[arg]}|\n `
-  })
-  argsTable += '\n'
+  let argsTable = ''
+  if (args.length) {
+    argsTable = `| Arg | description |\n|-----|-------------|\n`
+    args.forEach((arg) => {
+      if (arg[0] === '$') {
+        argsTable += `|${arg.replace('$', '')}|${data.meta[arg].description}|\n `
+      } else {
+        argsTable += `|${arg.replace('$', '')}|${data.meta[arg]}|\n `
+      }
+    })
+    argsTable += '\n'
+  }
 
   let returnMD = ''
   if(data.meta['$returns']) {
@@ -188,7 +195,25 @@ function createFunctionMD (data) {
 
   let callbackMD = ''
   if(data.meta['$callback']) {
-    returnMD = `\n##### Callback \n> ${data.meta['$callback']}\n`
+    callbackMD = `\n##### Callback \n> ${data.meta['$callback'].description}\n`
+    if (data.meta['$callback'].signature) {
+      callbackMD += '\n##### Signature\n'
+
+      let callbackArgs = Object.keys(data.meta['$callback'].signature)
+      let argsCBTable = ''
+      if (args.length) {
+        argsCBTable = `| Arg | description |\n|-----|-------------|\n`
+        callbackArgs.forEach((arg) => {
+          if (arg[0] === '$') {
+            argsCBTable += `|${arg.replace('$', '')}|${data.meta['$callback'].signature[arg]}|\n `
+          } else {
+            argsCBTable += `|${arg.replace('$', '')}|${data.meta['$callback'].signature[arg]}|\n `
+          }
+        })
+        argsCBTable += '\n'
+      }
+      callbackMD += argsCBTable
+    }
   }
 
   let md = ''
