@@ -1,87 +1,116 @@
 # app.js
-### prototype method forSmart (fn, callback) 
-| Arg | description |
-|-----|-------------|
-|fn|The function to call on each object, signature (elem, done)|
- |callback|The function to call when everything is done|
- 
 
-##### Callback 
-> The function to call when everything is done
+### ``` prototype method forSmart (fn, callback) ```
 
-##### Signature
 | Arg | description |
-|-----|-------------|
-|err|The error, or null if no error|
- 
+| --: | :-- |
+| fn | The function to call on each object, signature (elem, done) |
+| callback | The function to call when everything is done |
+
+
+
+
+#### Callback
+
+The function to call when everything is done
+
+
+
+
 
 ---
 
-### function processComment (comment) 
+### ``` function processComment (comment) ```
+
 | Arg | description |
-|-----|-------------|
-|comment|The extracted comment|
- 
+| --: | :-- |
+| comment | The extracted comment |
 
-##### Returns 
-> null if not a docstring, else the doc object
+
+
+#### Return
+ 
+null if not a docstring, else the doc object
+
 
 ---
 
-### function findFileComments (fileName, callback) 
+### ``` function findFileComments (fileName, callback) ```
+
 | Arg | description |
-|-----|-------------|
-|fileName|The file name of the file|
- |callback|undefined|
- 
+| --: | :-- |
+| fileName | The file name of the file |
+| callback |  |
 
-##### Callback 
-> undefined
+
+
+
+#### Callback
+
+
+
+
 
 ---
 
-### function readDir (dir, callback) 
+### ``` function readDir (dir, callback) ```
+
 | Arg | description |
-|-----|-------------|
-|dir|The directory to read from|
- |callback|undefined|
- 
+| --: | :-- |
+| dir | The directory to read from |
+| callback |  |
 
-##### Callback 
-> undefined
+
+
+
+#### Callback
+
+
+
+
 
 ---
 
-### function createMDFile (fileData) 
+### ``` function processAllDocumatation (documentation, format) ```
+
 | Arg | description |
-|-----|-------------|
-|fileData|The docstring data of a file|
- 
+| --: | :-- |
+| documentation | The documentation information for the entire program |
+| format | html or md, the output format |
+
+
+
+
 
 ---
 
-### function processAllDocumatation (documentation, format) 
+### ``` function writeFile (contents, fileName, callback) ```
+
 | Arg | description |
-|-----|-------------|
-|documentation|The documentation information for the entire program|
- |format|html or md, the output format|
- 
+| --: | :-- |
+| contents | The string to print to a file |
+| fileName | the file to write to |
+| callback |  |
+
+
+
+
+#### Callback
+
+
+
+
 
 ---
 
-### function writeFile (contents, fileName, callback) 
+### ``` function main () ```
+
 | Arg | description |
-|-----|-------------|
-|contents|The string to print to a file|
- |fileName|the file to write to|
- |callback|undefined|
- 
+| --: | :-- |
 
-##### Callback 
-> undefined
+
+
+
 
 ---
 
-### function main () 
-
----

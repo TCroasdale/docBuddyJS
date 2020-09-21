@@ -6,6 +6,7 @@ const matter = require('gray-matter')
 const { argv } = require('yargs')
 const conf = require('./.docdown.config.js')
 const Promise = require('promise')
+const mdCompiler = require('./compilemarkdown')
 
 /**
  * ---
@@ -90,8 +91,9 @@ function findFileComments(fileName, callback) {
 
         comments.forEach((comment) => {
           let docObject = processComment(comment)
-          if (docObject)
+          if (docObject) {
             cmtData.push(docObject)
+          }
         })
 
         callback(false, cmtData)
@@ -129,7 +131,7 @@ function readDir (dir, callback) {
               done(err)
             } else {
               if(data.length) {
-                dirData[file] = data
+                dirData[file] = { funcs: data }
               }
               done()
             }
@@ -143,87 +145,6 @@ function readDir (dir, callback) {
   })
 }
 
-/**
- * ---
- * fileData: The docstring data of a file
- * ---
- */
-function createMDFile (fileName, fileData) {
-  let markdown =`# ${fileName}`
-
-  fileData.forEach((functionData) => {
-    markdown += '\n'
-    markdown += createFunctionMD(functionData)
-    markdown += '\n---\n'
-  })
-
-  return markdown
-}
-
-function createFunctionMD (data) {
-  const metaKeys = Object.keys(data.meta)
-  const args = metaKeys.filter(key => !key.match(/^(\$return[s]*)/g))
-
-  let signature = ''
-  args.forEach((arg) => {
-    signature += `${arg.replace('$', '')}, `
-  })
-  signature = signature.substr(0, signature.length - 2)
-
-  let heading = `### ${data.codeContext.type} ${data.codeContext.name} (${signature}) \n`
-
-  let argsTable = ''
-  if (args.length) {
-    argsTable = `| Arg | description |\n|-----|-------------|\n`
-    args.forEach((arg) => {
-      if (arg[0] === '$') {
-        argsTable += `|${arg.replace('$', '')}|${data.meta[arg].description}|\n `
-      } else {
-        argsTable += `|${arg.replace('$', '')}|${data.meta[arg]}|\n `
-      }
-    })
-    argsTable += '\n'
-  }
-
-  let returnMD = ''
-  if(data.meta['$returns']) {
-    returnMD = `\n##### Returns \n> ${data.meta['$returns']}\n`
-  }
-  if(data.meta['$return']) {
-    returnMD = `\n##### Returns \n> ${data.meta['$return']}\n`
-  }
-
-  let callbackMD = ''
-  if(data.meta['$callback']) {
-    callbackMD = `\n##### Callback \n> ${data.meta['$callback'].description}\n`
-    if (data.meta['$callback'].signature) {
-      callbackMD += '\n##### Signature\n'
-
-      let callbackArgs = Object.keys(data.meta['$callback'].signature)
-      let argsCBTable = ''
-      if (args.length) {
-        argsCBTable = `| Arg | description |\n|-----|-------------|\n`
-        callbackArgs.forEach((arg) => {
-          if (arg[0] === '$') {
-            argsCBTable += `|${arg.replace('$', '')}|${data.meta['$callback'].signature[arg]}|\n `
-          } else {
-            argsCBTable += `|${arg.replace('$', '')}|${data.meta['$callback'].signature[arg]}|\n `
-          }
-        })
-        argsCBTable += '\n'
-      }
-      callbackMD += argsCBTable
-    }
-  }
-
-  let md = ''
-  md += heading
-  md += argsTable
-  md += returnMD
-  md += callbackMD
-
-  return md
-}
 
 /**
  * ---
@@ -254,23 +175,28 @@ function processAllDocumatation (documentation, format) {
     // For each file
     fileNames.forSmart((fileName, fileDone) => {
       let thisPath = path.join(dirPath, fileName + '.md')
+      dirDocs[fileName].fileName = fileName
 
-      let md = createMDFile (fileName, dirDocs[fileName])
-      writeFile(md, thisPath, (err) => {
+      mdCompiler.compileFile('default.md', dirDocs[fileName], (err, md) => {
         if (err) {
-          fileDone(err)
+          console.error(err)
         } else {
-          fileDone()
+          writeFile(md, thisPath, (err) => {
+            if (err) {
+              fileDone(err)
+            } else {
+              fileDone()
+            }
+          })
         }
       })
-
+      // EO fileNames.for
     },
     (err) => {
       dirDone(err)
     })
 
-
-  },
+  }, // EO dirNames.for
   (err) => {
     if (err) {
       console.error(err)
