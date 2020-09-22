@@ -90,7 +90,9 @@ function findFileComments(fileName, callback) {
     if (err) {
       callback(err, undefined)
     } else {
-      let comments = extract(data)
+      // Comments aren't extracted when bash is inserted to top of file.
+      data = data.replace(/^(\#\!\s\/usr\/bin\/env)(\s[a-zA-Z]*)$/gm, '')
+      let comments = extract(data) // extracts all coments from file
       if (comments.length) {
         let cmtData = []
 
@@ -122,6 +124,7 @@ function findFileComments(fileName, callback) {
  */
 function readDir (dir, callback) {
   let dirPath = path.join(process.cwd(), dir)
+
   fs.readdir(dirPath, (err, files) => {
     if (err) {
       callback(err, null)
@@ -130,7 +133,7 @@ function readDir (dir, callback) {
       let dirData = {} // The doc data for the directory
 
       files.forSmart((file, done) => {
-          if (!file.match(/^.*\.js/g)) {
+          if (!file.match(/^.*\.js$/g)) {
             return done() // only process .js files
           }
         
@@ -161,9 +164,9 @@ function readDir (dir, callback) {
  * format: html or md, the output format
  * ---
  */
-function processAllDocumatation (documentation, format) {
+function processAllDocumatation (documentation, format, destination) {
   // Create root docs folder, if it doesn't exist
-  let docsDir = path.join(process.cwd(), 'docs')
+  let docsDir = path.join(process.cwd(), destination)
   if (!fs.existsSync(docsDir)){
     fs.mkdirSync(docsDir);
   }
@@ -241,12 +244,18 @@ function writeFile (contents, fileName, callback) {
  * The entry point of the program
  */
 function main () {
-  const dirsToExtract = argv.dir ? argv.dir : '/'
-  const format = argv.format ? argv.format : 'md'
+  let config = { dir: '/', type: 'md', docs_folder: '/docs' }
+  if (fs.existsSync(process.cwd() + '/docbuddy.config.js')) {
+    config = require(process.cwd() + '/docbuddy.config.js').module
+  }
 
-  let bar = require('progress-bar').create(process.stdout)
-  // bar.update(0.5)
   
+  const dirsToExtract = argv.dir ? argv.dir : config.dir
+  const format = argv.format ? argv.format : config.type
+  const docsFolder = argv.dest ? argv.dest : config.docs_folder
+
+  
+  console.log('Running in directories', dirsToExtract)
   if (typeof dirsToExtract === typeof '') { // If only one dir specified
     readDir(dirsToExtract, (err, data) => {
       if (err) {
@@ -254,7 +263,7 @@ function main () {
       } else {
         let programData = {}
         programData[dirsToExtract] = data
-        processAllDocumatation(programData, format)
+        processAllDocumatation(programData, format, docsFolder)
       }
     })
   } else { // if multiple are specified
@@ -270,7 +279,7 @@ function main () {
         }
       })
     }, () => {
-      processAllDocumatation(programData, format)
+      processAllDocumatation(programData, format, docsFolder)
     })
 
   }

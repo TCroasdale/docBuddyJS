@@ -15,25 +15,17 @@ Reads a template file, either synchronously or asynchronously
 | callback | The callback function which is called is synchronous execution is desired. |
 
 
-
 #### Return
 ##### Type: ``` String ```
 returns the data if no callback is provided
 
 #### Callback
-
 The callback function which is called is synchronous execution is desired.
-
-
-
 
 | Arg | description |
 | --: | :-- |
 | err | The error from reading the file |
 | template | The returned template string |
- 
-
-
 
 
 ---

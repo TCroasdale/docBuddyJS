@@ -1,8 +1,8 @@
 exports.module = {
-  'dir': [
+  dir: [
     '/',
     '/examples'
   ],
-  'type': 'md',
-  'docs_folder': '/docs'
+  type: 'md',
+  docs_folder: '/docs'
 }
