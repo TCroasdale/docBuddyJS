@@ -1,10 +1,10 @@
+#! /usr/bin/env node
 const fs = require('fs')
 const path = require('path')
 const extract = require('extract-comment')
 const markdown = require('markdown').markdown
 const matter = require('gray-matter')
 const { argv } = require('yargs')
-const conf = require('./.docdown.config.js')
 const Promise = require('promise')
 const mdCompiler = require('./compilemarkdown')
 
@@ -121,7 +121,7 @@ function findFileComments(fileName, callback) {
  * Fetches all the comment data from all the files in a directory.
  */
 function readDir (dir, callback) {
-  let dirPath = path.join(__dirname, dir)
+  let dirPath = path.join(process.cwd(), dir)
   fs.readdir(dirPath, (err, files) => {
     if (err) {
       callback(err, null)
@@ -163,7 +163,7 @@ function readDir (dir, callback) {
  */
 function processAllDocumatation (documentation, format) {
   // Create root docs folder, if it doesn't exist
-  let docsDir = path.join(__dirname, 'docs')
+  let docsDir = path.join(process.cwd(), 'docs')
   if (!fs.existsSync(docsDir)){
     fs.mkdirSync(docsDir);
   }
@@ -241,19 +241,26 @@ function writeFile (contents, fileName, callback) {
  * The entry point of the program
  */
 function main () {
-  const workDir = argv.dir ? argv.dir : '/'
+  const dirsToExtract = argv.dir ? argv.dir : '/'
   const format = argv.format ? argv.format : 'md'
+
+  let bar = require('progress-bar').create(process.stdout)
+  // bar.update(0.5)
   
-  if (typeof workDir === typeof '') { // If only one dir specified
-    readDir(workDir, (err, data) => {
+  if (typeof dirsToExtract === typeof '') { // If only one dir specified
+    readDir(dirsToExtract, (err, data) => {
       if (err) {
         console.error (err)
+      } else {
+        let programData = {}
+        programData[dirsToExtract] = data
+        processAllDocumatation(programData, format)
       }
     })
   } else { // if multiple are specified
     let programData = {}
 
-    workDir.forSmart((subDir, done) => {
+    dirsToExtract.forSmart((subDir, done) => {
       readDir(subDir, (err, data) => {
         if (err) {
           done(err)
@@ -263,7 +270,6 @@ function main () {
         }
       })
     }, () => {
-      console.log(programData)
       processAllDocumatation(programData, format)
     })
 
