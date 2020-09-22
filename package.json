@@ -1,5 +1,5 @@
 {
-  "name": "untitled-node-doc-tool",
+  "name": "docbuddyjs",
   "version": "0.0.1",
   "description": "A tool to extract docstrings and create markdown doc files",
   "main": "app.js",
