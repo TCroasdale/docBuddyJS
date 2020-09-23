@@ -1,29 +1,30 @@
 # <$= fileName $>
 
 <$ funcs.forEach((func) => {  $>
+<$ if (func.meta['$route']) { -$>
+- ``` <$= func.meta['$route'].method $> <$= func.meta['$route'].endpoint $> ```
+<$ } else { -$>
 <$ if (func.codeContext.params) { -$>
 - ``` <$= func.codeContext.type $> <$= func.codeContext.name $> (<$= func.codeContext.params.join(', ') $>) ```
 <$ } else { -$>
 - ``` <$= func.codeContext.type $> <$= func.codeContext.name $> () ```
+<$ } -$>
 <$ } -$>
 <$ }) $>
 
 
 <$ funcs.forEach((func) => { -$>
 
-<$ if (func.meta['$route']) { $>
-
+<$ if (func.meta['$route']) { -$>
 ### ``` <$= func.meta['$route'].method $> ``` - <$= func.meta['$route'].endpoint $>
-
-<$ } else { $>
+<$ } else { -$>
 
 <$ if (func.codeContext.params) { -$>
 ### ``` <$= func.codeContext.type $> <$= func.codeContext.name $> (<$= func.codeContext.params.join(', ') $>) ```
 <$ } else { -$>
 ### ``` <$= func.codeContext.type $> <$= func.codeContext.name $> () ```
 <$ } -$>
-
-<$ } $>
+<$ } -$>
 
 <$= func.md $>
 
