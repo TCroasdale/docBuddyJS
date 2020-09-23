@@ -7,10 +7,7 @@
 
 
 
-
 ### ``` method compileFile (templateName, data, callback, templateFolder) ```
-
-
 
 Reads a template file, either synchronously or asynchronously
 
