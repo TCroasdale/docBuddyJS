@@ -11,3 +11,18 @@
 module.exports.function = function (arg1, arg2) {
   return
 }
+
+/**
+ * ---
+ * $route:
+ *  method: GET
+ *  endpoint: /users/test/{id}
+ * $return: This is a description of returns
+ * ---
+ * # Hello world
+ * 
+ * This is a short decscription of what this function does
+ */
+module.exports.function = function (arg1, arg2) {
+  return
+}
