@@ -1,3 +1,4 @@
+<$ if (args.length > 0) { -$>
 | Arg | description |
 | --: | :-- |
 <$_ Object.keys(args).forEach((arg) => { -$>
@@ -9,3 +10,4 @@
 <$_ } -$>
 <$_ } -$>
 <$_ }) -$><$# End of args for loop $>
+<$ } -$>
